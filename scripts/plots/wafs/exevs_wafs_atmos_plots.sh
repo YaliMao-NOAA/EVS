@@ -7,22 +7,31 @@ mkdir -p $DATAplot
 
 export MPIRUN=${MPIRUN:-"mpiexec"}
 
-OBSERVATIONS="GCIP GFS"
+OBSERVATIONS=${OBSERVATIONS:-"GCIP GFS"}
 
 rm -f wafs_plots.cmdfile
 
 ic=0
 export VX_MASK_ALL="GLB ASIA AUNZ EAST NAMER NATL_AR2 NHEM NPO SHEM TROPICS"
 for observation in $OBSERVATIONS ; do
+    if [ $observation = "GCIP" ] ; then
+	loopFHOURS="all"
+    elif [ $observation = "GFS" ] ; then
+	# Need to use more CPUs to break down plotting of each forecast hour
+	# It takes too long for each plotting over years (10 minutes/6 years)
+	loopFHOURS="06 12 18 24 30 36"
+    fi
     for ndays in $DAYS_LIST ; do
 	for subregion in $VX_MASK_ALL ; do
-	    if [ `echo $MPIRUN | cut -d " " -f1` = 'srun' ] ; then
-		echo $ic $USHevs/evs_wafs_atmos_plots.sh $observation $ndays $subregion >> wafs_plots.cmdfile
-	    else
-		echo $USHevs/evs_wafs_atmos_plots.sh $observation $ndays $subregion >> wafs_plots.cmdfile
-		export MP_PGMMODEL=mpmd
-	    fi
-	    ic=$(( ic + 1 ))
+	    for hh in $loopFHOURS ; do
+		if [ `echo $MPIRUN | cut -d " " -f1` = 'srun' ] ; then
+		    echo $ic $USHevs/evs_wafs_atmos_plots.sh $observation $ndays $subregion $hh >> wafs_plots.cmdfile
+		else
+		    echo $USHevs/evs_wafs_atmos_plots.sh $observation $ndays $subregion $hh >> wafs_plots.cmdfile
+		    export MP_PGMMODEL=mpmd
+		fi
+		ic=$(( ic + 1 ))
+	    done
 	done
     done
 done

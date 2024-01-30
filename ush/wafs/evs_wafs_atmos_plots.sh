@@ -21,6 +21,9 @@ echo $msg
 export OBSERVATION=$1
 export NDAYS=$2
 export VX_MASK_LIST=$3
+if [ $4 != 'all' ] ; then
+    export FHOURS=$4
+fi
 
 export VALID_END=$VDATE
 export VALID_BEG=`date -d "$VDATE - $NDAYS days" +%Y%m%d`
@@ -60,7 +63,8 @@ for RESOLUTION in $resolutions ; do
     mkdir -p $OUTPUT_BASE_DIR
 
     source $HOMEevs/parm/evs_config/wafs/config.evs.wafs.standalone
-
+    export FHOURS_EVSlist=${FHOURS_EVSlist:-${FHOURS// /, }}
+    
     if [ $OBSERVATION = "GCIP" ] ; then
         stat_file_suffix=`echo $VAR1_NAME | tr '[:upper:]' '[:lower:]'`
     elif [ $OBSERVATION = "GFS" ] ; then
