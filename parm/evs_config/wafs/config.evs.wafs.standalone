@@ -47,11 +47,6 @@ elif [ $OBSERVATION = "GFS" ] ; then
 	    export VAR_OPTIONS_FCST="wind_thresh = [ >=5.14444 ]; wind_logic = INTERSECTION"
 	    export VAR_OPTIONS_OBS="$VAR_OPTIONS_FCST"
 
-	    # For plot
-            export VAR_NAME=${VAR_NAME_GFS:-"UGRD_VGRD"}
-	    export VAR1_LEVELS_FCST="$VAR_LEVELS"
-	    export VAR1_LEVELS_OBS="$VAR_LEVELS"
-
 	elif [[ $VAR = 'uvt' ]] ; then
 	    # For stat $PARMevs/GridStat_fcstWAFS_obs${OBSERVATION}${VAR}.conf
 	    export VAR1_NAME=TMP
@@ -65,9 +60,12 @@ elif [ $OBSERVATION = "GFS" ] ; then
 	    export VAR2_OPTIONS_FCST="cnt_thresh = [ NA, >=41.155556 ]; cnt_logic = INTERSECTION"
 	    export VAR2_OPTIONS_OBS="cnt_thresh = [ NA, NA ]; cnt_logic = INTERSECTION"
 
-	    # For plot
-            export VAR_NAME=${VAR_NAME_GFS:-"TMP, WIND, WIND80"}
 	fi
+
+	# For plot
+	export VAR_NAME=$VAR_NAME
+	export VAR1_LEVELS_FCST="$VAR_LEVELS"
+	export VAR1_LEVELS_OBS="$VAR_LEVELS"
 
     fi
 fi

@@ -21,7 +21,14 @@ echo $msg
 export OBSERVATION=$1
 export NDAYS=$2
 export RESOLUTION=$3
-export VAR=$4
+export VAR_NAME=$4
+if [[ $VAR_NAME == "ICESEV" ]] ; then
+    export VAR="icesev"
+elif [[ $VAR_NAME == "UGRD_VGRD" ]] ; then
+    export VAR="wdir"
+else
+    export VAR="uvt"
+fi
 export PLOT_TYPE=$5
 export VX_MASK_LIST=$6
 if [ $7 != 'all' ] ; then

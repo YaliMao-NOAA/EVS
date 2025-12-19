@@ -17,7 +17,7 @@ export VX_MASK_ALL="GLB ASIA AUNZ EAST NAMER NATL_AR2 NHEM NPO SHEM TROPICS"
 # observation:  GCIP                 GFS
 # ndays:        90                   90
 # resolution    0.25                 1.25
-# var           icesev               uvt    wdir
+# vars          ICESEV               TMP WIND WIND80 UGRD_VGRD
 # plot_type     roc_curve   fbias    time_series
 # (STATS        farate,pod  fbias    rmse dir_rmse)
 # (LINE_TYPE    CTC                  SL1L2  VCNT)
@@ -28,14 +28,14 @@ for observation in $OBSERVATIONS ; do
 	loopFHOURS="06 09 12 15 18 21 24 27 30 33 36"
 	plot_types="roc_curve fbias"
 	resolutions="0P25"
-	vars="icesev" #variables to do verfications on
+	vars=${VAR_NAMES_GCIP:-"ICESEV"}
     elif [ $observation = "GFS" ] ; then
 	# Need to use more CPUs to break down plotting of each forecast hour
 	# It takes too long for each plotting over years (10 minutes/6 years)
 	loopFHOURS="06 12 18 24 30 36"
 	plot_types="time_series"
 	resolutions="1P25"
-	vars="uvt wdir" #variables to do verfications on
+	vars=${VAR_NAMES_GFS:-"TMP, WIND, WIND80 "} # UGRD_VGRD
     fi
     for ndays in $DAYS_LIST ; do
 	if [ $ndays -le 90 ] ; then
@@ -67,17 +67,25 @@ export err=$?; err_chk
 
 cd $DATAplot
 for ndays in $DAYS_LIST ; do
-    cp $DATA/html/* .
+    dir_html="$DATA/html"
+    if [ -d $dir_html ] && [ -n "$(ls -A "$dir_html")" ] ; then
+	cp $dir_html/* .
+	tarball_html=$NET.$STEP.${COMPONENT}.${RUN}.${VERIF_CASE}.$eval_period.v${VDATE}.html.tar
+	tar -cvf $tarball_html *${eval_period}*html
+
+	if [ $SENDCOM = "YES" ]; then
+	    cp -v $tarball_html $COMOUT/.
+	fi
+
+    fi
+ 
     eval_period="last${ndays}days"
     tarball=$NET.$STEP.${COMPONENT}.${RUN}.${VERIF_CASE}.$eval_period.v${VDATE}.tar
     tar -cvf $tarball *${eval_period}*png
-    tarball_html=$NET.$STEP.${COMPONENT}.${RUN}.${VERIF_CASE}.$eval_period.v${VDATE}.html.tar
-    tar -cvf $tarball_html *${eval_period}*html
     
     if [ -s $tarball ]; then
 	if [ $SENDCOM = "YES" ]; then
 	    cp -v $tarball $COMOUT/.
-	    cp -v $tarball_html $COMOUT/.
 	fi
 	if [ $SENDDBN = YES ] ; then     
 	    $DBNROOT/bin/dbn_alert MODEL EVS_RZDM $job $COMOUT/$tarball
