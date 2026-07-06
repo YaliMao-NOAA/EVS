@@ -35,7 +35,7 @@ for observation in $OBSERVATIONS ; do
 	loopFHOURS="06 12 18 24 30 36"
 	plot_types="time_series"
 	resolutions="1P25"
-	vars=${VAR_NAMES_GFS:-"TMP, WIND, WIND80 "} # UGRD_VGRD
+	vars=${VAR_NAMES_GFS:-"TMP WIND WIND80 UGRD_VGRD"}
     fi
     for ndays in $DAYS_LIST ; do
 	if [ $ndays -le 90 ] ; then
